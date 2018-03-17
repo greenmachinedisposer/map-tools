@@ -1,5 +1,6 @@
 'use-strict'
 var MapTool,self;
+console.log(localStorage['coordinate']);
 MapTool = self = (function () {
     var CONTENT_WRAPPER = 'content-wrapper'
     var MAP_CONTAINER = 'map-container';
@@ -13,7 +14,7 @@ MapTool = self = (function () {
         attribution : '&copy <a href="http://www.esri.com/">Esri</a> i-cubed, USDA, USGS, AEX, GeoEye, Getmapping,' +
         'Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     };
-    var DEFAULT_COORDINATES = [[0,0],[0,1],[-1,1],[-1,0]];
+    var DEFAULT_COORDINATES =  JSON.parse(localStorage['coordinate']) || [['0','0'],['0','1'],['-1','1'],['-1','0']];
     var CONSOLE_HEADER_MSG = "Map Information";
     var COORDINATE_LABEL = {
         nw : 'North West',
@@ -62,7 +63,6 @@ MapTool = self = (function () {
             self.initialIndex = index;
             _updateGeoFenceCorner(this,index)
         }).on('dragend',function () {
-            console.log(self.initialCorner._latlng.lat);
             if(_checkIrregularity()){
                 self.corners[self.initialIndex].setLatLng(self.initialCorner._latlng);
                 _updateGeoFenceCorner(self.initialCorner,self.initialIndex);
@@ -259,19 +259,20 @@ MapTool = self = (function () {
                 southeast:{},
                 southwest:{}
             };
-            $('#nw-lat').val(locations.northwest.latitude = self.corners[0]._latlng.lat);
-            $('#nw-lng').val(locations.northwest.longitude = self.corners[0]._latlng.lng);
+            $('#nw-lat').val(locations.northwest.latitude = DEFAULT_COORDINATES[0][0] = self.corners[0]._latlng.lat);
+            $('#nw-lng').val(locations.northwest.longitude = DEFAULT_COORDINATES[0][1] = self.corners[0]._latlng.lng);
 
-            $('#ne-lat').val(locations.northeast.latitude = self.corners[1]._latlng.lat);
-            $('#ne-lng').val(locations.northeast.longitude = self.corners[1]._latlng.lng);
+            $('#ne-lat').val(locations.northeast.latitude = DEFAULT_COORDINATES[1][0] = self.corners[1]._latlng.lat);
+            $('#ne-lng').val(locations.northeast.longitude = DEFAULT_COORDINATES[1][1] = self.corners[1]._latlng.lng);
 
-            $('#se-lat').val(locations.southeast.latitude = self.corners[2]._latlng.lat);
-            $('#se-lng').val(locations.southeast.longitude = self.corners[2]._latlng.lng);
+            $('#se-lat').val(locations.southeast.latitude = DEFAULT_COORDINATES[2][0] = self.corners[2]._latlng.lat);
+            $('#se-lng').val(locations.southeast.longitude = DEFAULT_COORDINATES[2][1] = self.corners[2]._latlng.lng);
 
-            $('#sw-lat').val(locations.southwest.latitude = self.corners[3]._latlng.lat);
-            $('#sw-lng').val(locations.southwest.longitude = self.corners[3]._latlng.lng);
+            $('#sw-lat').val(locations.southwest.latitude = DEFAULT_COORDINATES[3][0] = self.corners[3]._latlng.lat);
+            $('#sw-lng').val(locations.southwest.longitude = DEFAULT_COORDINATES[3][1] = self.corners[3]._latlng.lng);
 
             self.locations = locations;
+            localStorage['coordinate'] = JSON.stringify(DEFAULT_COORDINATES);
         }
     }
 })();
