@@ -1,10 +1,42 @@
+body{
+    background-color: black;
+}
+
+#content-wrapper{
+    padding: 20px 20px 20px 20px;
+}
 .map{
-    height: 500px;
-    width: 500px;
+    height: 600px;
     display: inline-block;
 }
 
 .form{
-    width:100%;
+    padding: 20px;
     display: inline-block;
+    position: absolute;
+    top: 0;
+
+}
+
+.coord-form{
+    display: inline-block;
+}
+
+.console {
+    width: 50%;
+    height: 100%;
+    background-color: black;
+    color: #1c7430;
+    resize: none;
+    font-size: 5pt;
+}
+
+.console-container {
+    width: 100%;
+    height: 200px;
+
+}
+
+.coordinate {
+    color: #1e7e34;
 }
