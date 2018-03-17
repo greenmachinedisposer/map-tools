@@ -7,6 +7,8 @@ MapTool = self = (function () {
     var FORM = 'form-container';
     var MAP_CONSOLE = 'console-map';
     var GEOFENCE_CONSOLE = 'console-geofence';
+    var DASHBOARD = 'dashboard';
+    var BTN_COPY = 'btn-copy';
     var options = {
         maxZoom: 21,
         minZoom : 1,
@@ -107,15 +109,40 @@ MapTool = self = (function () {
     var _initMapConsole = function () {
         var $console = document.createElement('textarea');
         $($console).prop('id',MAP_CONSOLE);
-        $($console).addClass('console');
+        $($console).addClass('console col-md-4');
         $($console).text(CONSOLE_HEADER_MSG);
         return $console;
     };
     var _initGeoFenceConsole = function () {
         var $console = document.createElement('textarea');
         $($console).prop('id',GEOFENCE_CONSOLE);
-        $($console).addClass('console');
+        $($console).addClass('console col-md-8');
         return $console;
+    };
+    var _initDashboardButtons = function () {
+        var $dashboard = document.createElement('div');
+        $($dashboard).prop('id',DASHBOARD);
+        $($dashboard).addClass('dashboard col-md-12');
+
+        var $buttons_container = document.createElement('div');
+        $($buttons_container).addClass('col-md-6 btn-container');
+
+        var $copy_location = document.createElement('button');
+        $($copy_location).prop('id',BTN_COPY);
+        $($copy_location).addClass('btn-success');
+        $($copy_location).append('COPY');
+        $($buttons_container).append($copy_location);
+        $($dashboard).append($buttons_container);
+
+        $($copy_location).on('click', function () {
+            var toBeCopied = $('#'+GEOFENCE_CONSOLE);
+            toBeCopied.select();
+            document.execCommand('Copy');
+            alert("Copied to Clipboard:\n " + toBeCopied.text());
+
+        });
+
+        return $dashboard;
     };
     var _initForm = function () {
         var $form_container = document.createElement('div');
@@ -126,8 +153,9 @@ MapTool = self = (function () {
         var $console_container = document.createElement('div');
         $($console_container).addClass('col-md-12 form-control console-container');
 
-        $($console_container).append(_initMapConsole());
         $($console_container).append(_initGeoFenceConsole());
+        $($console_container).append(_initMapConsole());
+        $($console_container).append(_initDashboardButtons());
         $($form_container).append($console_container);
 
         $($form_container).append(_createCoordinateForm('nw'));
