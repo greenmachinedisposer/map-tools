@@ -3,116 +3,89 @@
 var Tool,self;
 Tool = self = (function () {
     var MAP_CONTAINER = 'map-container';
-    var _initMap = function (selector,options) {
-        return L.map(selector,options);
-    };
+    var FORM = 'form-container';
     var options = {
         maxZoom: 21,
         minZoom : 1,
         maxBounds : [[-90,180],[90,-180]]
     };
+    var DEFAULT_COORDINATES = [[0,0],[0,1],[-1,1],[-1,0]];
+    var _initMap = function (selector,options) {
+        var $map_container = document.createElement('div');
+        $($map_container).prop('id',MAP_CONTAINER);
+        $($map_container).addClass('map col-md-6');
+        $('#content-wrapper').append($map_container);
+        var map =  L.map(selector);
+        L.tileLayer(openstreetmap,options).addTo(map);
+        map.setView([1,1],10);
+        return map;
+    };
+    var _initMarkers = function (map) {
+        var corners = [];
+        DEFAULT_COORDINATES.map(function (coordinate) {
+            corners.push(L.marker(coordinate,{draggable:true}).addTo(map));
+        });
+        return corners;
+    };
+    var _initMarkerHandler = function (marker,index) {
+        $(marker).on('drag dragstart',function () {
+            self.geofence.remove(self.map);
+            var corners = self.geofence.getLatLngs()[0];
+            var corner = this._latlng;
+            var newCorners = [];
+            for(var i=0;i<corners.length;i++){
+                if(i===index){
+                    newCorners[i] = corner;
+                }
+                else {
+                    newCorners[i] = corners[i];
+                }
+            }
+            self.geofence.setLatLngs(newCorners);
+            self.geofence.addTo(self.map);
+        });
+    };
+    var _initGeoFence = function (map) {
+        var geofence = L.polygon(DEFAULT_COORDINATES,{draggable:true});
+        geofence.addTo(map);
+        return geofence;
+    };
+    var _initGeoFenceHandler = function (geofence) {
+        $(geofence).on('drag',function () {
+            var corners = self.geofence.getLatLngs()[0];
+            for(var i=0; i< corners.length; i++){
+                self.corners[i].setLatLng(corners[i]);
+            }
+        });
+    };
     var openstreetmap = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-
+    var _initForm = function () {
+        var $form_container = document.createElement('div');
+        $($form_container).prop('id',FORM);
+        $($form_container).addClass('form col-md-6');
+        $('#content-wrapper').append($form_container);
+    };
     return {
         map:null,
-        nw:null,
-        ne:null,
-        sw:null,
-        se:null,
+        corners:[],
         geofence:null,
-        init : function () {
-            self.createComponents();
-        },
-        createComponents : function () {
-            var $map_container = document.createElement('div');
-            $($map_container).prop('id',MAP_CONTAINER);
-            $($map_container).addClass('map');
-            $('#content-wrapper').append($map_container);
-            var map = self.map = _initMap(MAP_CONTAINER);
-            L.tileLayer(openstreetmap,options).addTo(map);
-            map.setView([1,1],10);
-            var nw = self.nw = L.marker([0,0],{draggable:true});
-            var ne = self.ne = L.marker([0,1],{draggable:true});
-            var sw = self.sw = L.marker([-1,0],{draggable:true});
-            var se = self.se = L.marker([-1,1],{draggable:true});
-            nw.addTo(map);
-            ne.addTo(map);
-            sw.addTo(map);
-            se.addTo(map);
-            var geofence = self.geofence = L.polygon([[0,0],[0,1],[-1,1],[-1,0]],{draggable:true});
-            geofence.addTo(map);
-            console.log(geofence.getLatLngs());
+        initComponents : function () {
+            var map = self.map = _initMap(MAP_CONTAINER,options);
 
-            $(nw).on('drag dragstart',function () {
-                self.geofence.remove(map);
-                    var _latlngs = self.geofence.getLatLngs()[0];
-                var newLatLngs = [];
-                console.log(this._latlng);
-                console.log(_latlngs);
-                newLatLngs[0] = this._latlng;
-                newLatLngs[1] = _latlngs[1];
-                newLatLngs[2] = _latlngs[2];
-                newLatLngs[3] = _latlngs[3];
-
-                console.log(newLatLngs);
-                self.geofence.setLatLngs(newLatLngs);
-                self.geofence.addTo(map);
-            });
-            $(ne).on('drag dragstart',function () {
-                self.geofence.remove(map);
-                var _latlngs = self.geofence.getLatLngs()[0];
-                var newLatLngs = [];
-                console.log(this._latlng);
-                console.log(_latlngs);
-                newLatLngs[0] = _latlngs[0];
-                newLatLngs[1] = this._latlng;
-                newLatLngs[2] = _latlngs[2];
-                newLatLngs[3] = _latlngs[3];
-                console.log(newLatLngs);
-                self.geofence.setLatLngs(newLatLngs);
-                self.geofence.addTo(map);
-            });
-            $(se).on('drag dragstart',function () {
-                self.geofence.remove(map);
-                var _latlngs = self.geofence.getLatLngs()[0];
-                var newLatLngs = [];
-                console.log(this._latlng);
-                console.log(_latlngs);
-                newLatLngs[0] = _latlngs[0];
-                newLatLngs[1] = _latlngs[1];
-                newLatLngs[2] = this._latlng;
-                newLatLngs[3] = _latlngs[3];
-                console.log(newLatLngs);
-                self.geofence.setLatLngs(newLatLngs);
-                self.geofence.addTo(map);
-            });
-
-            $(sw).on('drag',function () {
-                self.geofence.remove(map);
-                var _latlngs = self.geofence.getLatLngs()[0];
-                var newLatLngs = [];
-                console.log(this._latlng);
-                console.log(_latlngs);
-                newLatLngs[0] = _latlngs[0];
-                newLatLngs[1] = _latlngs[1];
-                newLatLngs[2] = _latlngs[2];
-                newLatLngs[3] = this._latlng;
-                console.log(newLatLngs);
-                self.geofence.setLatLngs(newLatLngs);
-                self.geofence.addTo(map);
-            });
+            var corners = self.corners = _initMarkers(map);
             
-            $(geofence).on('drag',function () {
-                var _latlngs = self.geofence.getLatLngs()[0];
-                console.log(_latlngs[0]);
-                nw.setLatLng(_latlngs[0]);
-                ne.setLatLng(_latlngs[1]);
-                se.setLatLng(_latlngs[2]);
-                sw.setLatLng(_latlngs[3]);
+            var geofence = self.geofence = _initGeoFence(map);
+            
+            corners.map(function (corner,index) {
+                _initMarkerHandler(corner,index);
             });
+
+            _initGeoFenceHandler(geofence);
+
+            _initForm();
 
         },
 
     }
 })();
-Tool.init();
+Tool.initComponents();
